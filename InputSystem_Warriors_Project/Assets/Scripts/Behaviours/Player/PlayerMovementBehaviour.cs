@@ -11,12 +11,16 @@ public class PlayerMovementBehaviour : MonoBehaviour
     [Header("Movement Settings")]
     public float movementSpeed = 3f;
     public float turnSpeed = 0.1f;
-
-
+    public float JumpIntensity = 10;
+    [SerializeField] float maxJumpHeight = 4.0f;
+    [SerializeField] float jumpPeakTime = 0.4f;
+    protected Vector2 currentVelocity;
+    float Gravity { get { return maxJumpHeight * 2 / (jumpPeakTime * jumpPeakTime); } }
+    public float JumpSpeed { get { return Gravity * jumpPeakTime; } }
+    private bool canjump = true;
     //Stored Values
     private Camera mainCamera;
     private Vector3 movementDirection;
-
 
     public void SetupBehaviour()
     {
@@ -37,6 +41,15 @@ public class PlayerMovementBehaviour : MonoBehaviour
     {
         MoveThePlayer();
         TurnThePlayer();
+        ApplyGravity();
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            Jump();
+        }
+
+
+
     }
 
     void MoveThePlayer()
@@ -71,5 +84,14 @@ public class PlayerMovementBehaviour : MonoBehaviour
         return cameraForward * movementDirection.z + cameraRight * movementDirection.x; 
    
     }
+    void ApplyGravity()
+    {
+        currentVelocity.y -= Gravity * Time.fixedDeltaTime;
+    }
 
+    void Jump()
+    {
+        playerRigidbody.AddForce(new Vector3(0, JumpIntensity, 0), ForceMode.Impulse);
+        //currentVelocity.y = JumpSpeed;
+    }
 }
